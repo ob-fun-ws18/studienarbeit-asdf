@@ -1,7 +1,4 @@
-module Lib
-    (setIndex2, setIndex
-    ) where
-
+module Lib where
 
 setIndex
     :: [a] -- the list
@@ -27,3 +24,14 @@ setIndex2 list row col value =
         (head, (mid : tail)) = splitAt row list
         newSubList = setIndex mid col value
     in  head ++ (newSubList : tail)
+
+getRandomMinePositions
+    :: Int -- width
+    -> Int -- height
+    -> Int -- probability
+    -> [(Int, Int)] -- mine index's
+getRandomMinePositions 0 0 _ = []
+getRandomMinePositions _ _ 0 = []
+getRandomMinePositions _ _ 1 = []
+-- TODO implement random position generation correctly
+getRandomMinePositions width height prob = [(0, 1),(4, 0),(11, 12),(7, 0)]

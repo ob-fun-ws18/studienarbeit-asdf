@@ -1,7 +1,7 @@
 module Main where
 
-import Lib
 import Board
+import Lib
 
 main :: IO ()
-main = putStrLn "amk"
+main = putStrLn ""

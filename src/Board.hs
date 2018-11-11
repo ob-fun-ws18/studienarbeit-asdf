@@ -1,13 +1,11 @@
-module Board (Board(..), Position(..), FieldContent(..), FieldState(..), NeighbourCount(..), isFlagged) where
+module Board (Board(..), FieldContent(..), FieldState(..), NeighbourCount(..), board) where
 
-
-
-type Position = (Int, Int)
+import Lib (getRandomMinePositions)
 
 data NeighbourCount = Nil | One | Two | Three | Four | Five | Six | Seven | Eight
 
 instance Show NeighbourCount where
-    show Nil = "0"
+    show Nil = " "
     show One = "1"
     show Two = "2"
     show Three = "3"
@@ -22,21 +20,31 @@ instance Show FieldContent where
     show (Mine) = "*"
     show (NoMine c) = show c
 
-data FieldState = Revealed | Hidden Bool deriving Show
+data FieldState = Revealed | Hidden deriving (Show, Eq)
+data Field = Field
+  {
+    content :: FieldContent,
+    state :: FieldState
+  }
 
-isFlagged :: FieldState -> Bool
-isFlagged (Hidden flagged) = flagged
+instance Show Field where
+    show (Field c s) = if (s == Hidden) then "_" else show c
 
 data Board = Board
     {
       width :: Int,
       height :: Int,
-      fields :: [(Position, FieldContent, FieldState)]
-    }
+      fields :: [Field]
+    } deriving Show
 
-instance Show Board where
-    show (Board _ _ fields) = show $ (map second fields)
+board :: Int -> Int -> Int -> Board
+board width height prob = do
+    let minesPos = getRandomMinePositions width height prob
+    let positions = [(w, h) | w <- [0..width], h <- [0..height]]
+    let boardContent = map (\pos -> getFieldContent pos minesPos) positions
+    Board width height (map (\content -> Field content Revealed) boardContent)
 
-
-second :: (Position, FieldContent, FieldState) -> FieldContent
-second (_, s, _) = s
+getFieldContent :: (Int, Int) -> [(Int, Int)] -> FieldContent
+getFieldContent pos minePos =
+    -- TODO calculate NeighbourCount correctly
+    if (pos `elem` minePos) then Mine else NoMine One
