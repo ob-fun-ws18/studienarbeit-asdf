@@ -1,6 +1,7 @@
 module Board (Board(..), FieldContent(..), FieldState(..), NeighbourCount(..), board) where
 
-import Lib (getRandomMinePositions)
+import Lib (getRandomMinePositions, getSurroundingPositions)
+import System.Random
 
 data NeighbourCount = Nil | One | Two | Three | Four | Five | Six | Seven | Eight
 
@@ -37,16 +38,45 @@ data Board = Board
       fields :: [Field]
     } deriving Show
 
-board :: Int -> Int -> Int -> Board
+board :: Int -> Int -> Int -> StdGen -> Board
 
-board width height numberOfMines = do
-    randomGenerator <- newStdGen
+-- create randomGenerator with gen <- newStdGen
+board width height numberOfMines randomGenerator = do
     let minesPos = getRandomMinePositions width height numberOfMines randomGenerator
     let positions = [(w, h) | w <- [0..width], h <- [0..height]]
-    let boardContent = map (\pos -> getFieldContent pos minesPos) positions
+    let boardContent = map (\pos -> getFieldContent pos minesPos width height) positions
     Board width height (map (\content -> Field content Revealed) boardContent)
 
-getFieldContent :: (Int, Int) -> [(Int, Int)] -> FieldContent
-getFieldContent pos minePos =
-    -- TODO calculate NeighbourCount correctly
-    if (pos `elem` minePos) then Mine else NoMine One
+
+getFieldContent :: (Int, Int) -> [(Int, Int)] -> Int -> Int -> FieldContent
+getFieldContent pos minesPos width height = do
+
+    let countSurroundingMines xs ys = length [x | x <- xs, x `elem` ys]
+        surroundingPos = getSurroundingPositions pos width height
+        numSurroundingMines = countSurroundingMines surroundingPos minesPos
+
+    if (pos `elem` minesPos)
+        then Mine
+    else
+    -- TODO change this ugly block (too lazy to google right now)
+        if numSurroundingMines == 0
+            then NoMine Nil
+        else if numSurroundingMines == 1
+            then NoMine One
+        else if numSurroundingMines == 2
+            then NoMine Two
+        else if numSurroundingMines == 3
+            then NoMine Three
+        else if numSurroundingMines == 4
+            then NoMine Four
+        else if numSurroundingMines == 5
+            then NoMine Five
+        else if numSurroundingMines == 6
+            then NoMine Six
+        else if numSurroundingMines == 7
+            then NoMine Seven
+        else if numSurroundingMines == 8
+            then NoMine Eight
+        else
+            -- todo add exception
+            NoMine Nil

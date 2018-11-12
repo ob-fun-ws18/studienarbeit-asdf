@@ -34,12 +34,23 @@ getRandomMinePositions
     -> Int -- number of mines
     -> StdGen -- random number generator
     -> [(Int, Int)] -- mine index's
-getRandomMinePositions 0 0 _ = []
-getRandomMinePositions _ _ 0 = []
+getRandomMinePositions 0 0 _ _ = []
+getRandomMinePositions _ _ 0 _ = []
 getRandomMinePositions width height numberOfMines generator =
     let length = width * height
         shuffledBoard = shuffle' [(w, h) | w <- [0..width], h <- [0..height]] length generator
         mines = take numberOfMines shuffledBoard
     in mines
--- TODO implement random position generation correctly
---getRandomMinePositions width height prob = [(0, 1),(4, 0),(11, 12),(7, 0)]
+
+getSurroundingPositions
+    :: (Int, Int) -- position
+    -> Int -- width
+    -> Int -- height
+    -> [(Int, Int)] -- surrounding positions
+getSurroundingPositions position width height =
+    let minWidth  = max (fst position - 1) 0
+        maxWidth  = min (fst position + 1) width
+        minHeight = max (snd position - 1) 0
+        maxHeight = min (snd position + 1) height
+
+    in [(w,h) | w <- [minWidth..maxWidth], h <- [minHeight..maxHeight], (w,h) /= position]
