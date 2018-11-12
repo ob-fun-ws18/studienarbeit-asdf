@@ -1,5 +1,8 @@
 module Lib where
 
+import System.Random
+import System.Random.Shuffle
+
 setIndex
     :: [a] -- the list
     -> Int -- index
@@ -28,10 +31,15 @@ setIndex2 list row col value =
 getRandomMinePositions
     :: Int -- width
     -> Int -- height
-    -> Int -- probability
+    -> Int -- number of mines
+    -> StdGen -- random number generator
     -> [(Int, Int)] -- mine index's
 getRandomMinePositions 0 0 _ = []
 getRandomMinePositions _ _ 0 = []
-getRandomMinePositions _ _ 1 = []
+getRandomMinePositions width height numberOfMines generator =
+    let length = width * height
+        shuffledBoard = shuffle' [(w, h) | w <- [0..width], h <- [0..height]] length generator
+        mines = take numberOfMines shuffledBoard
+    in mines
 -- TODO implement random position generation correctly
-getRandomMinePositions width height prob = [(0, 1),(4, 0),(11, 12),(7, 0)]
+--getRandomMinePositions width height prob = [(0, 1),(4, 0),(11, 12),(7, 0)]

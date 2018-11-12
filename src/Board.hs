@@ -38,8 +38,10 @@ data Board = Board
     } deriving Show
 
 board :: Int -> Int -> Int -> Board
-board width height prob = do
-    let minesPos = getRandomMinePositions width height prob
+
+board width height numberOfMines = do
+    randomGenerator <- newStdGen
+    let minesPos = getRandomMinePositions width height numberOfMines randomGenerator
     let positions = [(w, h) | w <- [0..width], h <- [0..height]]
     let boardContent = map (\pos -> getFieldContent pos minesPos) positions
     Board width height (map (\content -> Field content Revealed) boardContent)
