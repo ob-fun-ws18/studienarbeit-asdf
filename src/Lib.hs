@@ -38,7 +38,7 @@ getRandomMinePositions 0 0 _ _ = []
 getRandomMinePositions _ _ 0 _ = []
 getRandomMinePositions width height numberOfMines generator =
     let length = width * height
-        shuffledBoard = shuffle' [(w, h) | w <- [0..width], h <- [0..height]] length generator
+        shuffledBoard = shuffle' [(w, h) | w <- [0..width-1], h <- [0..height-1]] length generator
         mines = take numberOfMines shuffledBoard
     in mines
 
