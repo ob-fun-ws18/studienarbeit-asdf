@@ -35,7 +35,8 @@ data Field = Field
   }
 
 instance Show Field where
-    show (Field c s) = if (s == Hidden) then "_" else show c
+    show (Field _ Hidden) = "_"
+    show (Field c Revealed) = show c
 
 data Board = Board
     {
