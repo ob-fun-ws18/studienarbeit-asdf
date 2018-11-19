@@ -16,6 +16,7 @@ instance Show NeighbourCount where
     show One = "1"
     show Two = "2"
     show Three = "3"
+    show Four = "4"
     show Five  = "5"
     show Six = "6"
     show Seven = "7"
