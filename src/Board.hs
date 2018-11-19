@@ -46,7 +46,7 @@ data Board = Board
     }
 
 instance Show Board where
-    show (Board width _ fields) = (\row -> (foldl (\acc y -> acc ++ (show y) ++ "\n") "" row)) (splitEvery width fields)
+    show (Board width _ fields) =  (\row -> (foldl (\acc y -> acc ++ (show y) ++ "\n") "" row)) (splitEvery width fields)
 
 splitEvery :: Int -> [a] -> [[a]]
 splitEvery _ [] = []
