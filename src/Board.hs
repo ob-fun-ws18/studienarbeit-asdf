@@ -5,7 +5,8 @@ module Board (
     FieldState(..),
     NeighbourCount(..),
     board,
-    revealField
+    revealField,
+    flagField
     ) where
 
 import Lib (getRandomMinePositions, getSurroundingPositions, setIndex)
@@ -30,7 +31,7 @@ instance Show FieldContent where
     show (Mine) = "*"
     show (NoMine c) = show c
 
-data FieldState = Revealed | Hidden deriving (Show, Eq)
+data FieldState = Revealed | Hidden Bool deriving (Show, Eq)
 data Field = Field
   {
     content :: FieldContent,
@@ -38,7 +39,8 @@ data Field = Field
   }
 
 instance Show Field where
-    show (Field _ Hidden) = "_"
+    show (Field _ (Hidden False)) = "_"
+    show (Field _ (Hidden True)) = "<|"
     show (Field c Revealed) = show c
 
 data Board = Board
@@ -64,7 +66,7 @@ board width height numberOfMines randomGenerator = do
     let minesPos = getRandomMinePositions width height numberOfMines randomGenerator
     let positions = [(w, h) | w <- [0..width-1], h <- [0..height-1]]
     let boardContent = map (\pos -> getFieldContent pos minesPos width height) positions
-    Board width height (map (\content -> Field content Hidden) boardContent)
+    Board width height (map (\content -> Field content (Hidden False)) boardContent)
 
 
 getFieldContent :: (Int, Int) -> [(Int, Int)] -> Int -> Int -> FieldContent
@@ -87,3 +89,15 @@ revealField board x y = do
     let revealedField = Field (content field) Revealed
     let newFields = setIndex (fields board) pos revealedField
     Board (width board) (height board) newFields
+
+
+flagField :: Board -> Int -> Int -> Board
+flagField board x y = do
+    let pos = ((width board) * x) + y
+    let field = (fields board)!!pos
+    if ((state field) == Revealed)
+      then board
+      else do
+        let flaggedField = Field (content field) (Hidden True)
+        let newFields = setIndex (fields board) pos flaggedField
+        Board (width board) (height board) newFields
