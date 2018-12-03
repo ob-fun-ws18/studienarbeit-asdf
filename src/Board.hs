@@ -4,9 +4,10 @@ module Board (
     FieldContent(..),
     FieldState(..),
     NeighbourCount(..),
+    GameState(..),
     board,
-    revealField,
-    flagField, getFieldContent, isGameLost, revealBoard, isGameWon
+--    revealField,
+    flagField, getFieldContent, isGameLost, revealBoard, isGameWon, checkedRevealField
     ) where
 
 import Lib (getRandomMinePositions, getSurroundingPositions, setIndex)
@@ -32,6 +33,19 @@ instance Eq FieldContent where
     -- TODO
     _ == _ = False
 
+data GameState = GameWon | GameLost | GameNotFinished
+
+instance Eq GameState where
+    GameWon == GameWon = True
+    GameLost == GameLost = True
+    GameNotFinished == GameNotFinished = True
+    _ == _ = False
+
+instance Show GameState where
+    show (GameWon) = "GameWon"
+    show (GameLost) = "GameLost"
+    show (GameNotFinished) = "GameNotFinished"
+
 instance Show FieldContent where
     show (Mine) = "*"
     show (NoMine c) = show c
@@ -53,11 +67,12 @@ data Board = Board
       width :: Int,
       height :: Int,
       numberOfMines :: Int,
-      fields :: [Field]
+      fields :: [Field],
+      gameState:: GameState
     }
 
 instance Show Board where
-    show (Board width _ _ fields) = (\row -> (foldl (\acc y -> acc ++ (show y) ++ "\n") "" row)) (splitEvery width fields)
+    show (Board width _ _ fields _) = (\row -> (foldl (\acc y -> acc ++ (show y) ++ "\n") "" row)) (splitEvery width fields)
 
 splitEvery :: Int -> [a] -> [[a]]
 splitEvery _ [] = []
@@ -72,7 +87,7 @@ board width height numberOfMines randomGenerator = do
     let minesPos = getRandomMinePositions width height numberOfMines randomGenerator
     let positions = [(w, h) | w <- [0..width-1], h <- [0..height-1]]
     let boardContent = map (\pos -> getFieldContent pos minesPos width height) positions
-    Board width height numberOfMines (map (\content -> Field content (Hidden False)) boardContent)
+    Board width height numberOfMines (map (\content -> Field content (Hidden False)) boardContent) GameNotFinished
 
 
 getFieldContent :: (Int, Int) -> [(Int, Int)] -> Int -> Int -> FieldContent
@@ -86,14 +101,31 @@ getFieldContent pos minesPos width height = do
     else
         NoMine (toEnum numSurroundingMines)
 
-
-revealField :: Board -> Int -> Int -> Board
-revealField board x y = do
+checkedRevealField :: Board -> Int -> Int -> Board
+checkedRevealField board x y = do
     let pos = ((width board) * x) + y
     let field = (fields board)!!pos
     let revealedField = Field (content field) Revealed
     let newFields = setIndex (fields board) pos revealedField
-    Board (width board) (height board) (numberOfMines board) newFields
+    let boardNext = Board (width board) (height board) (numberOfMines board) newFields GameNotFinished
+    let gameWon = isGameWon boardNext
+    let gameLost = (content field) == Mine
+
+    if gameLost then
+        Board (width board) (height board) (numberOfMines board) newFields GameLost
+    else if gameWon then
+        Board (width board) (height board) (numberOfMines board) newFields GameWon
+    else
+        boardNext
+
+
+-- revealField :: Board -> Int -> Int -> Board
+-- revealField board x y = do
+--     let pos = ((width board) * x) + y
+--     let field = (fields board)!!pos
+--     let revealedField = Field (content field) Revealed
+--     let newFields = setIndex (fields board) pos revealedField
+--     Board (width board) (height board) (numberOfMines board) newFields GameNotFinished
 
 
 flagField :: Board -> Int -> Int -> Board
@@ -106,7 +138,7 @@ flagField board x y = do
       else do
         let flaggedField = Field (content field) (Hidden True)
         let newFields = setIndex (fields board) pos flaggedField
-        Board (width board) (height board) (numberOfMines board) newFields
+        Board (width board) (height board) (numberOfMines board) newFields GameNotFinished
 
 getFieldFromBoard :: Board -> Int -> Int -> Field
 getFieldFromBoard board x y = do
@@ -128,9 +160,9 @@ isGameWon board = do
 
 -- TODO laesst sich bestimmt irgendwie schoen mit foldr schreiben aber ich checks nicht lel
 revealBoard :: Board -> Int -> Board
-revealBoard board 0 = revealField board 0 0
+revealBoard board 0 = checkedRevealField board 0 0
 revealBoard board index = do
     let x = mod index (width board)
         y = quot index (height board)
-    revealBoard (revealField board x y) (index - 1)
+    revealBoard (checkedRevealField board x y) (index - 1)
 

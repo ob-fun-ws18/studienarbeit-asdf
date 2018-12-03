@@ -29,21 +29,20 @@ playGame b = do
           w = read (ws!!1) :: Int
           h = read (ws!!2) :: Int
       let board = execute b instruction w h
-      if instruction == "reveal" && (isGameLost board w h)
-        then do
-            let b = revealBoard board (width board * height board)
-            putStrLn (show b)
-            error "Game over, you dun goofed"
-      else if instruction == "reveal" && (isGameWon board)
-        then do
-            let b = revealBoard board (width board * height board)
-            putStrLn (show b)
-            error "You won!"
+
+      let state = gameState board
+      let revealedBoard = revealBoard board (width board * height board)
+      if state == GameLost then do
+        putStrLn (show revealedBoard)
+        error "Game over, you dun goofed"
+      else if state == GameWon then do
+        putStrLn (show revealedBoard)
+        error "Game over, you won"
       else do
         playGame board
 
 execute :: Board -> String -> Int -> Int -> Board
 execute b instruction width height
-    | instruction == "reveal" = revealField b width height
+    | instruction == "reveal" = checkedRevealField b width height
     | instruction == "flag"   = flagField b width height
     | otherwise               = error "unknown command"
