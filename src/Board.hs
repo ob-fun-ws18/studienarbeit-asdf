@@ -7,7 +7,7 @@ module Board (
     GameState(..),
     board,
 --    revealField,
-    flagField, getFieldContent, isGameLost, revealBoard, isGameWon, checkedRevealField
+    flagField, getFieldContent, isGameLost, revealBoard, isGameWon, checkedRevealField, revealRecursive, getFieldFromBoard, getCrossNeighbourCellPositions
     ) where
 
 import Lib (getRandomMinePositions, getSurroundingPositions, setIndex)
@@ -30,7 +30,15 @@ data FieldContent = Mine | NoMine NeighbourCount
 
 instance Eq FieldContent where
     Mine == Mine = True
-    -- TODO
+    (NoMine Nil) == (NoMine Nil) = True
+    (NoMine One) == (NoMine One) = True
+    (NoMine Two) == (NoMine Two) = True
+    (NoMine Three) == (NoMine Three) = True
+    (NoMine Four) == (NoMine Four) = True
+    (NoMine Five) == (NoMine Five) = True
+    (NoMine Six) == (NoMine Six) = True
+    (NoMine Seven) == (NoMine Seven) = True
+    (NoMine Eight) == (NoMine Eight) = True
     _ == _ = False
 
 data GameState = GameWon | GameLost | GameNotFinished
@@ -101,33 +109,6 @@ getFieldContent pos minesPos width height = do
     else
         NoMine (toEnum numSurroundingMines)
 
-checkedRevealField :: Board -> Int -> Int -> Board
-checkedRevealField board x y = do
-    let pos = ((width board) * x) + y
-    let field = (fields board)!!pos
-    let revealedField = Field (content field) Revealed
-    let newFields = setIndex (fields board) pos revealedField
-    let boardNext = Board (width board) (height board) (numberOfMines board) newFields GameNotFinished
-    let gameWon = isGameWon boardNext
-    let gameLost = (content field) == Mine
-
-    if gameLost then
-        Board (width board) (height board) (numberOfMines board) newFields GameLost
-    else if gameWon then
-        Board (width board) (height board) (numberOfMines board) newFields GameWon
-    else
-        boardNext
-
-
--- revealField :: Board -> Int -> Int -> Board
--- revealField board x y = do
---     let pos = ((width board) * x) + y
---     let field = (fields board)!!pos
---     let revealedField = Field (content field) Revealed
---     let newFields = setIndex (fields board) pos revealedField
---     Board (width board) (height board) (numberOfMines board) newFields GameNotFinished
-
-
 flagField :: Board -> Int -> Int -> Board
 flagField board x y = do
     let pos = ((width board) * x) + y
@@ -166,3 +147,58 @@ revealBoard board index = do
         y = quot index (height board)
     revealBoard (checkedRevealField board x y) (index - 1)
 
+checkedRevealField :: Board -> Int -> Int -> Board
+checkedRevealField board x y = do
+    let boardNext = revealRecursive (revealField board x y) [(x, y)]
+    if (content $ getFieldFromBoard board x y) == Mine then
+        boardNext { gameState = GameLost }
+    else if (isGameWon boardNext) then
+        boardNext { gameState = GameWon }
+    else
+        boardNext
+
+isInBounds :: Board -> Int -> Int -> Bool
+isInBounds b x y = do
+      let w = width b
+          h = height b
+      if (x < 0 || y < 0)
+        then False
+      else if (x >= w || y >= h)
+        then False
+      else True
+
+getCrossNeighbourCellPositions :: Board -> Int -> Int -> [(Int, Int)]
+getCrossNeighbourCellPositions b x y = do
+      filter (\(x1, y1) -> isInBounds b x1 y1) [(x - 1, y), (x + 1, y), (x, y + 1), (x, y - 1)]
+
+isHidden :: Board -> Int -> Int -> Bool
+isHidden b x y = Revealed /= (state $ getFieldFromBoard b x y)
+
+getHiddenCrossNeighbourPositions :: Board -> Int -> Int -> [(Int, Int)]
+getHiddenCrossNeighbourPositions b x y = filter (\(x1, y1) -> isHidden b x1 y1) (getCrossNeighbourCellPositions b x y)
+
+revealField :: Board -> Int -> Int -> Board
+revealField b x y = do
+      let f = getFieldFromBoard b x y
+          pos = ((width b) * x) + y
+          newFields = setIndex (fields b) pos (f { state = Revealed })
+      b { fields = newFields }
+
+tryReveal :: Board -> Int -> Int -> Board
+tryReveal b x y = do
+      let c = content $ getFieldFromBoard b x y
+      case c of
+        Mine -> b
+        _ -> revealField b x y
+
+revealRecursive :: Board -> [(Int, Int)] -> Board
+revealRecursive b [] = b
+revealRecursive b ((x, y):rest) = do
+      let c = content $ getFieldFromBoard b x y
+      case c of
+        Mine -> revealRecursive b rest
+        NoMine Nil -> do
+          let b2 = tryReveal b x y
+              b3 = revealRecursive b2 rest
+          revealRecursive b3 (getHiddenCrossNeighbourPositions b3 x y)
+        _ -> revealRecursive (tryReveal b x y) rest
