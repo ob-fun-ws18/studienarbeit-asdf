@@ -16,7 +16,7 @@ import System.Random
 data NeighbourCount = Nil | One | Two | Three | Four | Five | Six | Seven | Eight deriving Enum
 
 instance Show NeighbourCount where
-    show Nil = " "
+    show Nil = "0"
     show One = "1"
     show Two = "2"
     show Three = "3"
@@ -80,11 +80,11 @@ splitEvery n list = first : (splitEvery n rest)
   where
     (first,rest) = splitAt n list
 
-board :: Int -> Int -> Int -> StdGen -> Board
+board :: Int -> Int -> Int -> Int -> Board
 
 -- create randomGenerator with gen <- newStdGen
-board width height numberOfMines randomGenerator = do
-    let minesPos = getRandomMinePositions width height numberOfMines randomGenerator
+board width height numberOfMines seed = do
+    let minesPos = getRandomMinePositions width height numberOfMines seed
     let positions = [(w, h) | w <- [0..width-1], h <- [0..height-1]]
     let boardContent = map (\pos -> getFieldContent pos minesPos width height) positions
     Board width height numberOfMines (map (\content -> Field content (Hidden False)) boardContent) GameNotFinished
