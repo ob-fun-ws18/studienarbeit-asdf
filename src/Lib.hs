@@ -1,7 +1,10 @@
 module Lib where
 
-import System.Random
-import System.Random.Shuffle
+-- import System.Random
+-- import System.Random.Shuffle
+
+getRandomNumber :: Int -> Int -> Int
+getRandomNumber seed range = ((1103515243 * seed + 123) `mod` (2^16)) `mod` range
 
 setIndex
     :: [a] -- the list
@@ -32,14 +35,17 @@ getRandomMinePositions
     :: Int -- width
     -> Int -- height
     -> Int -- number of mines
-    -> StdGen -- random number generator
+    -> Int -- random number generator
     -> [(Int, Int)] -- mine index's
 getRandomMinePositions 0 0 _ _ = []
 getRandomMinePositions _ _ 0 _ = []
-getRandomMinePositions width height numberOfMines generator =
+getRandomMinePositions width height numberOfMines seed =
     let length = width * height
-        shuffledBoard = shuffle' [(w, h) | w <- [0..width-1], h <- [0..height-1]] length generator
-        mines = take numberOfMines shuffledBoard
+        mineIndixes = [getRandomNumber (seed * s) length | s <- [0..numberOfMines-1]]
+        fullBoard = [(w, h) | w <- [0..width-1], h <- [0..height-1]]
+        --shuffledBoard = shuffle' [(w, h) | w <- [0..width-1], h <- [0..height-1]] length generator
+        --mines = take numberOfMines shuffledBoard
+        mines = [fullBoard !! i | i <-mineIndixes]
     in mines
 
 getSurroundingPositions

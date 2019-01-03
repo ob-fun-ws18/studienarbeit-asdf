@@ -34,7 +34,8 @@ library
   hs-source-dirs:
       src
   build-depends:
-      base >=4.7 && <5
+        base >=4.7 && <5
+      , threepenny-gui ==0.8.3.0
   default-language: Haskell2010
 
 executable studienarbeit-minesweeper-exe
@@ -49,6 +50,7 @@ executable studienarbeit-minesweeper-exe
     , studienarbeit-minesweeper
     , random
     , random-shuffle
+    , threepenny-gui ==0.8.3.0
   default-language: Haskell2010
 
 test-suite studienarbeit-minesweeper-test
@@ -62,4 +64,5 @@ test-suite studienarbeit-minesweeper-test
   build-depends:
       base >=4.7 && <5
     , studienarbeit-minesweeper
+    , threepenny-gui ==0.8.3.0
   default-language: Haskell2010
