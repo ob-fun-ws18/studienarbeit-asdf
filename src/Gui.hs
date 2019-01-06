@@ -26,7 +26,6 @@ setup view = do
 
     getBody view #+ [element inputWidth, element inputHeight, element inputMines, element startGameBtn]
 
-
     on UI.click startGameBtn $ \_ -> do
 
         counter <- UI.div   # set UI.text "0"
@@ -58,22 +57,20 @@ setup view = do
                   # set UI.id_ ("field_" ++ (show pos))
 
                 on UI.click button $ \_ -> do
-                    --element button4 # set UI.text "not found"
-
                     rBoard <- liftIO $ readIORef boardRef
                     liftIO $ writeIORef boardRef (checkedRevealField rBoard w h)
                     rBoard <- liftIO $ readIORef boardRef
-
-                    element button # set UI.text (show (fields rBoard !! pos))
-                    --let asdf = showNewBoard rBoard view
+                    showFieldOnGUI view rBoard (width rBoard * height rBoard - 1)
                     let state = gameState rBoard
                         revealedBoard = revealBoard rBoard (width rBoard * height rBoard)
                     if state == GameLost then do
+                        showFieldOnGUI view revealedBoard (width rBoard * height rBoard - 1)
                         liftIO $ putStrLn (show revealedBoard)
-                        --error "Game over, you dun goofed"
+                        liftIO $ putStrLn "Game over, you dun goofed"
                     else if state == GameWon then do
-                        --liftIO $ putStrLn (show revealedBoard)
-                        error "Game over, you won"
+                        showFieldOnGUI view revealedBoard (width rBoard * height rBoard - 1)
+                        liftIO $ putStrLn (show revealedBoard)
+                        liftIO $ putStrLn "Game over, you won"
                     else do
                         liftIO $ putStrLn (show rBoard)
                     return ()
@@ -82,17 +79,25 @@ setup view = do
             | h <- [0..heightInput - 1]]
 
 
--- showNewBoard :: Board -> Window -> [UI Element]
--- showNewBoard b uiView = do
---     map (\fieldNum -> showFieldOnGUI fieldNum uiView) [0..(height b) * (width b)]
---
--- showFieldOnGUI :: Board -> Int -> Window -> UI (Element)
--- showFieldOnGUI gameBoard fieldNum uiView = do
---     btn <- getElementById uiView "field_" (show fieldNum)
---     case btn of
---         Nothing -> element btn # set UI.text "not found" -- !!!111!1!!1
---         Just btn -> element btn # set UI.text (show (fields gameBoard !! fieldNum))
+showFieldOnGUI :: Window -> Board -> Int -> UI Element
 
--- TODO update whole board instead of each button on its own (something like showNewBoard)
+showFieldOnGUI view brd 0 = do
+    btn <- getElementById view "field_0"
+    case btn of
+        Nothing -> error "Something smells...fishy"
+        Just el -> element el # set UI.text (show (fields brd !! 0))
+
+showFieldOnGUI view brd index = do
+    let x = mod index (width brd)
+        y = quot index (height brd)
+
+    liftIO $ putStrLn (show(index))
+    btn <- getElementById view ("field_" ++ show(index))
+    case btn of
+        Nothing -> error ("Something smells...fishy index=" ++ show(index))
+        Just el -> element el # set UI.text (show (fields brd !! index))
+    showFieldOnGUI view brd (index - 1)
+
+
 -- TODO parse inputs (width, height, mines)
 -- TODO images for buttons ?
