@@ -36,9 +36,11 @@ setup view = do
 --         let height = get value inputHeight
 --         let mines = get value inputMines
 
-        let widthInput = 10
-            heightInput = 10
+        let heightInput = 10
             numberOfMines = 10
+            widthInput = 10
+        --    widthInput = (parseInputField inputWidth) :: UI Int
+        --widthInput <- get value inputWidth
 
         boardRef <- liftIO $ newIORef (board widthInput heightInput numberOfMines 1 )
 
@@ -98,6 +100,10 @@ showFieldOnGUI view brd index = do
         Just el -> element el # set UI.text (show (fields brd !! index))
     showFieldOnGUI view brd (index - 1)
 
+-- parseInputField :: Element -> UI Int
+-- parseInputField inputField = do
+--     uiStr <- get value inputField
+--     read uiStr
 
 -- TODO parse inputs (width, height, mines)
 -- TODO images for buttons ?

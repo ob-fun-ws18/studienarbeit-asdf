@@ -2,12 +2,12 @@ module Main where
 
 import Gui (guiMain)
 import Lib
-import System.Random
+--import System.Random
 import Board
 import Lib
 main :: IO  ()
 main = guiMain
-
+--
 -- main :: IO ()
 -- main = do
 --     putStrLn "Please enter the width of the board"
