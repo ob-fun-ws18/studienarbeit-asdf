@@ -21,15 +21,30 @@ setup view = do
     inputHeight <- UI.input # set (attr "placeholder") "height"
     inputMines <- UI.input # set (attr "placeholder") "mines"
     startGameBtn <- UI.button   # set UI.text "start"
+    flagBtn <- UI.button # set UI.text "flag"
 
     field <- UI.div #. "Board"
 
-    getBody view #+ [element inputWidth, element inputHeight, element inputMines, element startGameBtn]
+    getBody view #+ [element inputWidth, element inputHeight, element inputMines, element startGameBtn, element flagBtn]
+
+    refIsFlagMode <- liftIO $ newIORef False
+
+    on UI.click flagBtn $ \_ -> do
+        isFlagMode <- liftIO $ readIORef refIsFlagMode
+        liftIO $ putStrLn (show isFlagMode)
+        liftIO $ writeIORef refIsFlagMode (not isFlagMode)
+
+        if isFlagMode then do
+            element flagBtn # set UI.text "flag"
+        else do
+            element flagBtn # set UI.text "reveal"
 
     on UI.click startGameBtn $ \_ -> do
-
         counter <- UI.div   # set UI.text "0"
         count <- liftIO $ newIORef 0
+
+
+
 
 -- TODO
 --         let width = get value inputWidth
@@ -60,7 +75,12 @@ setup view = do
 
                 on UI.click button $ \_ -> do
                     rBoard <- liftIO $ readIORef boardRef
-                    liftIO $ writeIORef boardRef (checkedRevealField rBoard w h)
+                    isFlagMode <- liftIO $ readIORef refIsFlagMode
+                    if isFlagMode then do
+                        liftIO $ writeIORef boardRef (flagField rBoard w h)
+                    else do
+                        liftIO $ writeIORef boardRef (checkedRevealField rBoard w h)
+
                     rBoard <- liftIO $ readIORef boardRef
                     showFieldOnGUI view rBoard (width rBoard * height rBoard - 1)
                     let state = gameState rBoard
