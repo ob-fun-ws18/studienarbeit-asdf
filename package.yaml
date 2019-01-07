@@ -30,7 +30,7 @@ library:
 executables:
   studienarbeit-minesweeper-exe:
     main:                Main.hs
-    source-dirs:         app, src
+    source-dirs:         app
     ghc-options:
     - -threaded
     - -rtsopts
