@@ -19,7 +19,7 @@ deploy:
   provider: pages
   skip_cleanup: true
   github_token: $GITHUB_TOKEN
-  local_dir: $HADDOCK_ROOT/doc/html/studienarbeit-sudoku-solver
+  local_dir: $HADDOCK_ROOT/doc/html/studienarbeit-minesweeper
   on:
     branch: master
 
