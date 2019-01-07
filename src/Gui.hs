@@ -51,55 +51,59 @@ setup view = do
 --         let height = get value inputHeight
 --         let mines = get value inputMines
 
-        let heightInput = 10
-            numberOfMines = 10
-            widthInput = 10
-        --    widthInput = (parseInputField inputWidth) :: UI Int
-        --widthInput <- get value inputWidth
+        consumeInput inputWidth (\wi -> do
+          consumeInput inputHeight (\he -> do
+            consumeInput inputMines (\mi -> do
+              let widthInput = read wi :: Int
+                  heightInput = read he :: Int
+                  numberOfMines = read mi :: Int
 
-        boardRef <- liftIO $ newIORef (board widthInput heightInput numberOfMines 1 )
+              boardRef <- liftIO $ newIORef (board widthInput heightInput numberOfMines 1 )
 
-        let mkString s = UI.string s # set UI.class_ "string"
-        let nFields = [0..(widthInput * heightInput) - 1]
+              let mkString s = UI.string s # set UI.class_ "string"
+              let nFields = [0..(widthInput * heightInput) - 1]
+
+              getBody view #+ [UI.tr #+
+                  [
+                  do
+                      let pos = h + w * heightInput
+                      button <- UI.button
+                        # set UI.class_ "minesweeper fields"
+                        # set UI.type_ "button"
+                        #+ [string "_"]
+                        # set UI.id_ ("field_" ++ (show pos))
+
+                      on UI.click button $ \_ -> do
+                          rBoard <- liftIO $ readIORef boardRef
+                          isFlagMode <- liftIO $ readIORef refIsFlagMode
+                          if isFlagMode then do
+                              liftIO $ writeIORef boardRef (flagField rBoard w h)
+                          else do
+                              liftIO $ writeIORef boardRef (checkedRevealField rBoard w h)
+
+                          rBoard <- liftIO $ readIORef boardRef
+                          showFieldOnGUI view rBoard (width rBoard * height rBoard - 1)
+                          let state = gameState rBoard
+                              revealedBoard = revealBoard rBoard (width rBoard * height rBoard)
+                          if state == GameLost then do
+                              showFieldOnGUI view revealedBoard (width rBoard * height rBoard - 1)
+                              liftIO $ putStrLn (show revealedBoard)
+                              liftIO $ putStrLn "Game over, you dun goofed"
+                          else if state == GameWon then do
+                              showFieldOnGUI view revealedBoard (width rBoard * height rBoard - 1)
+                              liftIO $ putStrLn (show revealedBoard)
+                              liftIO $ putStrLn "Game over, you won"
+                          else do
+                              liftIO $ putStrLn (show rBoard)
+                          return ()
+                      return (button)
+                  | w <- [0..widthInput - 1]]
+                  | h <- [0..heightInput - 1]]
 
 
-        getBody view #+ [UI.tr #+
-            [
-            do
-                let pos = h + w * heightInput
-                button <- UI.button
-                  # set UI.class_ "minesweeper fields"
-                  # set UI.type_ "button"
-                  #+ [string "_"]
-                  # set UI.id_ ("field_" ++ (show pos))
 
-                on UI.click button $ \_ -> do
-                    rBoard <- liftIO $ readIORef boardRef
-                    isFlagMode <- liftIO $ readIORef refIsFlagMode
-                    if isFlagMode then do
-                        liftIO $ writeIORef boardRef (flagField rBoard w h)
-                    else do
-                        liftIO $ writeIORef boardRef (checkedRevealField rBoard w h)
-
-                    rBoard <- liftIO $ readIORef boardRef
-                    showFieldOnGUI view rBoard (width rBoard * height rBoard - 1)
-                    let state = gameState rBoard
-                        revealedBoard = revealBoard rBoard (width rBoard * height rBoard)
-                    if state == GameLost then do
-                        showFieldOnGUI view revealedBoard (width rBoard * height rBoard - 1)
-                        liftIO $ putStrLn (show revealedBoard)
-                        liftIO $ putStrLn "Game over, you dun goofed"
-                    else if state == GameWon then do
-                        showFieldOnGUI view revealedBoard (width rBoard * height rBoard - 1)
-                        liftIO $ putStrLn (show revealedBoard)
-                        liftIO $ putStrLn "Game over, you won"
-                    else do
-                        liftIO $ putStrLn (show rBoard)
-                    return ()
-                return (button)
-            | w <- [0..widthInput - 1]]
-            | h <- [0..heightInput - 1]]
-
+              return ()
+              )))
 
 showFieldOnGUI :: Window -> Board -> Int -> UI Element
 
@@ -127,3 +131,8 @@ showFieldOnGUI view brd index = do
 
 -- TODO parse inputs (width, height, mines)
 -- TODO images for buttons ?
+
+consumeInput :: Element -> (String -> UI ()) -> UI ()
+consumeInput element consumer = do
+    let theValue = get value element
+    theValue >>= consumer
