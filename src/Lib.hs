@@ -1,8 +1,5 @@
 module Lib where
 
--- import System.Random
--- import System.Random.Shuffle
-
 getRandomNumber :: Int -> Int -> Int
 getRandomNumber seed range = ((1103515243 * seed + 123) `mod` (2^16)) `mod` range
 
@@ -20,25 +17,13 @@ setIndex xs ii v
         _setIndex (_ : xs) 0 v = v : xs
         _setIndex (x : xs) ii v = x : (setIndex xs (ii - 1) v)
 
-setIndex2
-    :: [[a]]  -- ^ the list
-    -> Int    -- ^ row
-    -> Int    -- ^ column
-    -> a      -- ^ new value
-    -> [[a]]  -- ^ the new list
-setIndex2 list row col value =
-    let
-        (head, (mid : tail)) = splitAt row list
-        newSubList = setIndex mid col value
-    in  head ++ (newSubList : tail)
-
 -- | Returns random mine coordinates.
 getRandomMinePositions
-    :: Int -- width
-    -> Int -- height
-    -> Int -- number of mines
-    -> Int -- seed
-    -> [(Int, Int)] -- mine coordinates
+    :: Int -- ^ width
+    -> Int -- ^ height
+    -> Int -- ^ number of mines
+    -> Int -- ^ seed
+    -> [(Int, Int)] -- ^ mine coordinates
 getRandomMinePositions 0 _ _ _ = []
 getRandomMinePositions _ 0 _ _ = []
 getRandomMinePositions _ _ 0 _ = []
@@ -49,11 +34,12 @@ getRandomMinePositions width height numberOfMines seed =
         mines = [fullBoard !! i | i <-mineIndixes]
     in mines
 
+-- | Returns the surrounding positions.
 getSurroundingPositions
-    :: (Int, Int) -- position
-    -> Int -- width
-    -> Int -- height
-    -> [(Int, Int)] -- surrounding positions
+    :: (Int, Int) -- ^ position
+    -> Int -- ^ width
+    -> Int -- ^ height
+    -> [(Int, Int)] -- ^ surrounding positions
 getSurroundingPositions position width height =
     let minWidth  = max (fst position - 1) 0
         maxWidth  = min (fst position + 1) width
