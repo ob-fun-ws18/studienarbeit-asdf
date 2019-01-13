@@ -33,3 +33,8 @@ spec =
           (isGameLost b 0 0) `shouldBe` True
         it "shoud not be lost" $
           (isGameLost (board 1 1 0 1) 0 0) `shouldBe` False
+      describe "isGameWon" $ do
+        it "should not be won" $
+          (isGameWon (board 2 2 1 1)) `shouldBe` False
+        it "should be won" $
+          (isGameWon (board 1 1 1 1)) `shouldBe` True
