@@ -6,8 +6,15 @@ module Board (
     NeighbourCount(..),
     GameState(..),
     board,
-    revealField,
-    flagField, getFieldContent, isGameLost, revealBoard, isGameWon, checkedRevealField, revealRecursive, getFieldFromBoard, getCrossNeighbourCellPositions
+    flagField,
+    getFieldContent,
+    isGameLost,
+    revealBoard,
+    isGameWon,
+    checkedRevealField,
+    revealRecursive,
+    getFieldFromBoard,
+    getCrossNeighbourCellPositions
     ) where
 
 import Lib (getRandomMinePositions, getSurroundingPositions, setIndex)
