@@ -1,0 +1,93 @@
+body {
+  background: #333;
+  color: #ccc;
+  font-family: ubuntu, sans-serif;
+  font-size: 14px;
+  background: url(stripes-bg.png);
+  padding-top: 1em;
+  text-shadow: #000 3px 1px 3px;
+}
+.wrap {
+  width: 40em;
+  margin: auto;
+}
+.buttons-list {
+  color: #aaa;
+}
+.button {
+  cursor: pointer;
+  color: #acc2a1;
+  text-decoration: underline;
+}
+a {
+  color: #acc2a1;
+}
+
+input{
+  border: 0;
+  color: #ccc;
+  padding: 0.3em;
+  border-radius:0.3em;
+  box-shadow: #191919 2px 1px 2px;
+  width: auto;
+  margin-right: 0.1em;
+}
+
+button, input {
+  border: 0;
+  color: #ccc;
+  padding: 0.3em;
+  border-radius:0.3em;
+  box-shadow: #191919 2px 1px 2px;
+}
+
+button.field {
+  border: 0;
+  color: #ccf;
+  padding: 0.3em;
+  border-radius:0.0em;
+  box-shadow: #191919 2px 1px 2px;
+  width: 50px;
+  height: 50px;
+
+  margin-top: 0em;
+  margin-bottom: 0em;
+  vertical-align: top;
+}
+
+button.startBtn:disabled,
+button.startBtn[disabled]{
+  border: 1px solid #999999;
+  background-color: #cccccc;
+  color: #666666;
+}
+
+input.gameInput {
+  width: 10em;
+}
+
+.button {
+  float: left;
+}
+
+input {
+  background: #292929;
+  width: 2em;
+}
+button:focus,input:focus {
+  background: #222;
+}
+button {
+  background: #444;
+}
+h1 {
+  font-size: 4em;
+  margin: 0;
+  padding-bottom: 0.2em;
+}
+h2 {
+  margin-top: 1.3em;
+  padding-bottom: 0em;
+  margin-bottom:0;
+}
+.view-source { float: right }
