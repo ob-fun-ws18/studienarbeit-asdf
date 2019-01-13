@@ -25,10 +25,9 @@ setup view = do
     startGameBtn <- UI.button   # set UI.text "start" # set UI.class_ "startBtn"
     flagBtn <- UI.button # set UI.text "flag"
 
-    field <- UI.div #. "Board"
-
-    getBody view #+ [element caption, element inputWidth, element inputHeight, element inputMines, element startGameBtn, element flagBtn]
-
+    --field <- UI.div #. "Board"
+    divInputWrapper <- UI.div #. "inputWrapper" #+ [element caption, element inputWidth, element inputHeight, element inputMines, element startGameBtn, element flagBtn]
+    getBody view #+ [element divInputWrapper]
     refIsFlagMode <- liftIO $ newIORef False
 
     on UI.click flagBtn $ \_ -> do
@@ -57,7 +56,7 @@ setup view = do
               let mkString s = UI.string s # set UI.class_ "string"
               let nFields = [0..(widthInput * heightInput) - 1]
 
-              getBody view #+ [UI.tr #+
+              getBody view #+ [UI.div #. "boardWrapper" #+ [UI.tr #+
                   [
                   do
                       let pos = h + w * heightInput
@@ -97,7 +96,7 @@ setup view = do
                           return ()
                       return (button)
                   | w <- [0..widthInput - 1]]
-                  | h <- [0..heightInput - 1]]
+                  | h <- [0..heightInput - 1]]]
 
 
 

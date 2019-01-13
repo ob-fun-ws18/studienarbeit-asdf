@@ -6,6 +6,7 @@ body {
   background: url(stripes-bg.png);
   padding-top: 1em;
   text-shadow: #000 3px 1px 3px;
+  margin-left: 30%;
 }
 .wrap {
   width: 40em;
@@ -53,6 +54,26 @@ button.field {
   margin-top: 0em;
   margin-bottom: 0em;
   vertical-align: top;
+
+}
+
+
+
+
+/* div.inputWrapper {
+  display: block;
+  margin-top: 1em;
+  align-items: center
+}
+
+div.boardWrapper {
+  display: block;
+  align-items: center
+} */
+
+div.boardWrapper {
+  display: block;
+  margin-top: 1em;
 }
 
 button.startBtn:disabled,
