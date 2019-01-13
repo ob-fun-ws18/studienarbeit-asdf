@@ -15,18 +15,19 @@ guiMain = startGUI defaultConfig { jsStatic = Just "." } setup
 
 setup :: Window -> UI ()
 setup view = do
-    return view # set title "Element Test"
+    UI.addStyleSheet view "gui-stylesheet.css"
+    return view # set title "Haskell Minesweeper"
 
-    inputWidth <- UI.input # set (attr "placeholder") "width"
-    inputHeight <- UI.input # set (attr "placeholder") "height"
-    inputMines <- UI.input # set (attr "placeholder") "mines"
-    startGameBtn <- UI.button   # set UI.text "start"
+    caption <- UI.h1 # set UI.text "Haskell Minesweeper"
+    inputWidth <- UI.input # set (attr "placeholder") "width" # set UI.class_ "gameInput"
+    inputHeight <- UI.input # set (attr "placeholder") "height" # set UI.class_ "gameInput"
+    inputMines <- UI.input # set (attr "placeholder") "mines" # set UI.class_ "gameInput"
+    startGameBtn <- UI.button   # set UI.text "start" # set UI.class_ "startBtn"
     flagBtn <- UI.button # set UI.text "flag"
 
-    field <- UI.div #. "Board"
-
-    getBody view #+ [element inputWidth, element inputHeight, element inputMines, element startGameBtn, element flagBtn]
-
+    --field <- UI.div #. "Board"
+    divInputWrapper <- UI.div #. "inputWrapper" #+ [element caption, element inputWidth, element inputHeight, element inputMines, element startGameBtn, element flagBtn]
+    getBody view #+ [element divInputWrapper]
     refIsFlagMode <- liftIO $ newIORef False
 
     on UI.click flagBtn $ \_ -> do
@@ -40,16 +41,8 @@ setup view = do
             element flagBtn # set UI.text "reveal"
 
     on UI.click startGameBtn $ \_ -> do
-        counter <- UI.div   # set UI.text "0"
-        count <- liftIO $ newIORef 0
+        element startGameBtn # set UI.enabled False
 
-
-
-
--- TODO
---         let width = get value inputWidth
---         let height = get value inputHeight
---         let mines = get value inputMines
 
         consumeInput inputWidth (\wi -> do
           consumeInput inputHeight (\he -> do
@@ -63,12 +56,12 @@ setup view = do
               let mkString s = UI.string s # set UI.class_ "string"
               let nFields = [0..(widthInput * heightInput) - 1]
 
-              getBody view #+ [UI.tr #+
+              getBody view #+ [UI.div #. "boardWrapper" #+ [UI.tr #+
                   [
                   do
                       let pos = h + w * heightInput
                       button <- UI.button
-                        # set UI.class_ "minesweeper fields"
+                        # set UI.class_ "field"
                         # set UI.type_ "button"
                         #+ [string "_"]
                         # set UI.id_ ("field_" ++ (show pos))
@@ -86,19 +79,24 @@ setup view = do
                           let state = gameState rBoard
                               revealedBoard = revealBoard rBoard (width rBoard * height rBoard)
                           if state == GameLost then do
+                              endingLabel <- UI.h1 # set UI.text "Game over, you lost"
+                              getBody view #+ [element endingLabel]
                               showFieldOnGUI view revealedBoard (width rBoard * height rBoard - 1)
                               liftIO $ putStrLn (show revealedBoard)
                               liftIO $ putStrLn "Game over, you dun goofed"
                           else if state == GameWon then do
+                              endingLabel <- UI.h1 # set UI.text "Game over, you won"
+                              getBody view #+ [element endingLabel]
                               showFieldOnGUI view revealedBoard (width rBoard * height rBoard - 1)
                               liftIO $ putStrLn (show revealedBoard)
                               liftIO $ putStrLn "Game over, you won"
+
                           else do
                               liftIO $ putStrLn (show rBoard)
                           return ()
                       return (button)
                   | w <- [0..widthInput - 1]]
-                  | h <- [0..heightInput - 1]]
+                  | h <- [0..heightInput - 1]]]
 
 
 

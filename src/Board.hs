@@ -16,7 +16,7 @@ import Lib (getRandomMinePositions, getSurroundingPositions, setIndex)
 data NeighbourCount = Nil | One | Two | Three | Four | Five | Six | Seven | Eight deriving Enum
 
 instance Show NeighbourCount where
-    show Nil = "0"
+    show Nil = ""
     show One = "1"
     show Two = "2"
     show Three = "3"
@@ -117,7 +117,8 @@ flagField board x y = do
     if ((state field) == Revealed)
       then board
       else do
-        let flaggedField = Field (content field) (Hidden True)
+        let setFlag =  Hidden False == state field
+        let flaggedField = Field (content field) (Hidden setFlag)
         let newFields = setIndex (fields board) pos flaggedField
         Board (width board) (height board) (numberOfMines board) newFields GameNotFinished
 
