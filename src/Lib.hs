@@ -37,7 +37,8 @@ getRandomMinePositions
     -> Int -- number of mines
     -> Int -- random number generator
     -> [(Int, Int)] -- mine index's
-getRandomMinePositions 0 0 _ _ = []
+getRandomMinePositions 0 _ _ _ = []
+getRandomMinePositions _ 0 _ _ = []
 getRandomMinePositions _ _ 0 _ = []
 getRandomMinePositions width height numberOfMines seed =
     let length = width * height

@@ -48,3 +48,5 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - studienarbeit-minesweeper
+    - hspec
+    - QuickCheck
