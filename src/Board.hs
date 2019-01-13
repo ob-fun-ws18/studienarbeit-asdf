@@ -6,6 +6,7 @@ module Board (
     NeighbourCount(..),
     GameState(..),
     board,
+    revealField,
     flagField, getFieldContent, isGameLost, revealBoard, isGameWon, checkedRevealField, revealRecursive, getFieldFromBoard, getCrossNeighbourCellPositions
     ) where
 
@@ -61,7 +62,7 @@ data Field = Field
   {
     content :: FieldContent,
     state :: FieldState
-  }
+  } deriving (Eq)
 
 instance Show Field where
     show (Field _ (Hidden False)) = "_"
@@ -75,7 +76,7 @@ data Board = Board
       numberOfMines :: Int,
       fields :: [Field],
       gameState:: GameState
-    }
+    } deriving (Eq)
 
 instance Show Board where
     show (Board width _ _ fields _) = (\row -> (foldl (\acc y -> acc ++ (show y) ++ "\n") "" row)) (splitEvery width fields)
@@ -87,8 +88,6 @@ splitEvery n list = first : (splitEvery n rest)
     (first,rest) = splitAt n list
 
 board :: Int -> Int -> Int -> Int -> Board
-
--- create randomGenerator with gen <- newStdGen
 board width height numberOfMines seed = do
     let minesPos = getRandomMinePositions width height numberOfMines seed
     let positions = [(w, h) | w <- [0..width-1], h <- [0..height-1]]
