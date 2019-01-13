@@ -6,11 +6,12 @@ module Lib where
 getRandomNumber :: Int -> Int -> Int
 getRandomNumber seed range = ((1103515243 * seed + 123) `mod` (2^16)) `mod` range
 
+-- | Sets the value at the given index.
 setIndex
-    :: [a] -- the list
-    -> Int -- index
-    -> a -- new value
-    -> [a] -- the new list
+    :: [a] -- ^ the list
+    -> Int -- ^ index
+    -> a -- ^ new value
+    -> [a] -- ^ the new list
 setIndex xs ii v
     | ii < 0 = error "Bad index"
     | otherwise = _setIndex xs ii v
@@ -20,23 +21,24 @@ setIndex xs ii v
         _setIndex (x : xs) ii v = x : (setIndex xs (ii - 1) v)
 
 setIndex2
-    :: [[a]]  -- the list
-    -> Int    -- row
-    -> Int    -- column
-    -> a      -- new value
-    -> [[a]]  -- the new list
+    :: [[a]]  -- ^ the list
+    -> Int    -- ^ row
+    -> Int    -- ^ column
+    -> a      -- ^ new value
+    -> [[a]]  -- ^ the new list
 setIndex2 list row col value =
     let
         (head, (mid : tail)) = splitAt row list
         newSubList = setIndex mid col value
     in  head ++ (newSubList : tail)
 
+-- | Returns random mine coordinates.
 getRandomMinePositions
     :: Int -- width
     -> Int -- height
     -> Int -- number of mines
-    -> Int -- random number generator
-    -> [(Int, Int)] -- mine index's
+    -> Int -- seed
+    -> [(Int, Int)] -- mine coordinates
 getRandomMinePositions 0 _ _ _ = []
 getRandomMinePositions _ 0 _ _ = []
 getRandomMinePositions _ _ 0 _ = []
@@ -44,8 +46,6 @@ getRandomMinePositions width height numberOfMines seed =
     let length = width * height
         mineIndixes = [getRandomNumber (seed * s) length | s <- [0..numberOfMines-1]]
         fullBoard = [(w, h) | w <- [0..width-1], h <- [0..height-1]]
-        --shuffledBoard = shuffle' [(w, h) | w <- [0..width-1], h <- [0..height-1]] length generator
-        --mines = take numberOfMines shuffledBoard
         mines = [fullBoard !! i | i <-mineIndixes]
     in mines
 

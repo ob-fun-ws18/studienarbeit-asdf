@@ -94,10 +94,14 @@ board width height numberOfMines seed = do
     let boardContent = map (\pos -> getFieldContent pos minesPos width height) positions
     Board width height numberOfMines (map (\content -> Field content (Hidden False)) boardContent) GameNotFinished
 
-
-getFieldContent :: (Int, Int) -> [(Int, Int)] -> Int -> Int -> FieldContent
+-- | Calcutates the number of mines surrounding the field at the given coordinate and determines its content.
+getFieldContent
+    :: (Int, Int) -- ^ the coordinate
+    -> [(Int, Int)] -- ^ the coordinates of the mines
+    -> Int -- ^ the width of the board
+    -> Int -- ^ the height of the board
+    -> FieldContent -- the field content (e.g. Mine, NoMine Nil, NoMine One, ...)
 getFieldContent pos minesPos width height = do
-
     let countSurroundingMines xs ys = length [x | x <- xs, x `elem` ys]
         surroundingPos = getSurroundingPositions pos width height
         numSurroundingMines = countSurroundingMines surroundingPos minesPos
@@ -106,10 +110,14 @@ getFieldContent pos minesPos width height = do
     else
         NoMine (toEnum numSurroundingMines)
 
-flagField :: Board -> Int -> Int -> Board
+-- | Flags the field on the given coordinate.
+flagField
+    :: Board -- ^ receiver
+    -> Int -- ^ x coordinate
+    -> Int -- ^ y coordinate
+    -> Board -- ^ the new board
 flagField board x y = do
     let pos = ((width board) * x) + y
-    --let field = (fields board)!!pos
     let field = getFieldFromBoard board x y
     if ((state field) == Revealed)
       then board
@@ -119,25 +127,35 @@ flagField board x y = do
         let newFields = setIndex (fields board) pos flaggedField
         Board (width board) (height board) (numberOfMines board) newFields GameNotFinished
 
-getFieldFromBoard :: Board -> Int -> Int -> Field
+-- | Returns the field on the given coordinate.
+getFieldFromBoard
+    :: Board -- ^ receiver
+    -> Int -- ^ x coordinate
+    -> Int -- ^ y coordinate
+    -> Field -- ^ the field
 getFieldFromBoard board x y = do
     let pos = ((width board) * x) + y
     (fields board)!!pos
 
-isGameLost :: Board -> Int -> Int -> Bool
+-- | Tells if a field that is being reveald is a mine and therefore the loosing condtiion is met.
+isGameLost
+    :: Board -- ^ receiver
+    -> Int  -- ^ x coordinate
+    -> Int -- ^ y coordinate
+    -> Bool -- ^ is game lost
 isGameLost board x y = do
     let field = getFieldFromBoard board x y
     Mine == content field
 
-
-isGameWon :: Board -> Bool
+-- | Tells if the board is solved and therefore the winning condition is met.
+isGameWon
+    :: Board -- ^ receiver
+    -> Bool -- ^ is game won
 isGameWon board = do
      let isFieldHidden = map (\field -> if state field == Revealed then 0 else 1) (fields board)
          numberOfHiddenFields = foldr (+) 0 isFieldHidden
      numberOfMines board == numberOfHiddenFields
 
-
--- TODO laesst sich bestimmt irgendwie schoen mit foldr schreiben aber ich checks nicht lel
 revealBoard :: Board -> Int -> Board
 revealBoard board 0 = checkedRevealField board 0 0
 revealBoard board index = do
@@ -155,7 +173,13 @@ checkedRevealField board x y = do
     else
         boardNext
 
-isInBounds :: Board -> Int -> Int -> Bool
+
+-- | Tells if a position is inside the boundary of the board.
+isInBounds
+    :: Board -- ^ receiver
+    -> Int -- ^ x coordinate
+    -> Int -- ^ y coordinate
+    -> Bool -- ^ coordinate is on board
 isInBounds b x y = do
       let w = width b
           h = height b
@@ -165,31 +189,58 @@ isInBounds b x y = do
         then False
       else True
 
-getCrossNeighbourCellPositions :: Board -> Int -> Int -> [(Int, Int)]
+-- | Returns the coordinates that are above, below, left and right from the given coordinate.
+-- Coordinates that are not within the boundary will be filtered out.
+getCrossNeighbourCellPositions
+      :: Board -- ^ receiver
+      -> Int -- ^ x coordinate
+      -> Int -- ^ y coordinate
+      -> [(Int, Int)] -- ^ coordinates of neighbouring cells that are within the boundary
 getCrossNeighbourCellPositions b x y = do
       filter (\(x1, y1) -> isInBounds b x1 y1) [(x - 1, y), (x + 1, y), (x, y + 1), (x, y - 1)]
 
-isHidden :: Board -> Int -> Int -> Bool
+-- | Tells if the state of the field with the coordinate x y is Hidden.
+isHidden
+      :: Board -- ^ receiver
+      -> Int -- ^ x coordinate
+      -> Int -- ^ y coordinate
+      -> Bool -- ^ if Hidden true else false
 isHidden b x y = Revealed /= (state $ getFieldFromBoard b x y)
 
 getHiddenCrossNeighbourPositions :: Board -> Int -> Int -> [(Int, Int)]
 getHiddenCrossNeighbourPositions b x y = filter (\(x1, y1) -> isHidden b x1 y1) (getCrossNeighbourCellPositions b x y)
 
-revealField :: Board -> Int -> Int -> Board
+-- | Sets the state of the field on the board with the coordinates of x and y to revealed.
+revealField
+      :: Board -- ^ receiver
+      -> Int -- ^ x coordinate
+      -> Int -- ^ y coordinate
+      -> Board -- ^ new board
 revealField b x y = do
       let f = getFieldFromBoard b x y
           pos = ((width b) * x) + y
           newFields = setIndex (fields b) pos (f { state = Revealed })
       b { fields = newFields }
 
-tryReveal :: Board -> Int -> Int -> Board
+-- | Sets the state of the field on the board with the coordinates of x and y to revealed if it is not a mine.
+tryReveal
+      :: Board -- ^ receiver
+      -> Int -- ^ x coordinate
+      -> Int -- ^ y coordinate
+      -> Board -- ^ new board
 tryReveal b x y = do
       let c = content $ getFieldFromBoard b x y
       case c of
         Mine -> b
         _ -> revealField b x y
 
-revealRecursive :: Board -> [(Int, Int)] -> Board
+-- | Tries to reveal all given coordinates recursivly.
+-- If a field is not a mine and also has the value Nil, then it will also
+-- recursivly reveal the neighbouring fields that are not diagonally located to this field.
+revealRecursive
+      :: Board -- ^ receiver
+      -> [(Int, Int)] -- ^ coordinates to reveal
+      -> Board -- ^ the new board
 revealRecursive b [] = b
 revealRecursive b ((x, y):rest) = do
       let c = content $ getFieldFromBoard b x y
