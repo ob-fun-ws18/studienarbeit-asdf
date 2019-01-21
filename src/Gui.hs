@@ -19,14 +19,14 @@ setup view = do
     return view # set title "Haskell Minesweeper"
 
     caption <- UI.h1 # set UI.text "Haskell Minesweeper"
-    inputWidth <- UI.input # set (attr "placeholder") "width" # set UI.class_ "gameInput"
-    inputHeight <- UI.input # set (attr "placeholder") "height" # set UI.class_ "gameInput"
+    inputSideLength <- UI.input # set (attr "placeholder") "side length" # set UI.class_ "gameInput"
+    --inputHeight <- UI.input # set (attr "placeholder") "height" # set UI.class_ "gameInput"
     inputMines <- UI.input # set (attr "placeholder") "mines" # set UI.class_ "gameInput"
     startGameBtn <- UI.button   # set UI.text "start" # set UI.class_ "startBtn"
     flagBtn <- UI.button # set UI.text "flag"
 
     --field <- UI.div #. "Board"
-    divInputWrapper <- UI.div #. "inputWrapper" #+ [element caption, element inputWidth, element inputHeight, element inputMines, element startGameBtn, element flagBtn]
+    divInputWrapper <- UI.div #. "inputWrapper" #+ [element caption, element inputSideLength, element inputMines, element startGameBtn, element flagBtn]
     getBody view #+ [element divInputWrapper]
     refIsFlagMode <- liftIO $ newIORef False
 
@@ -43,12 +43,10 @@ setup view = do
     on UI.click startGameBtn $ \_ -> do
         element startGameBtn # set UI.enabled False
 
-
-        consumeInput inputWidth (\wi -> do
-          consumeInput inputHeight (\he -> do
+        consumeInput inputSideLength (\sideLength -> do
             consumeInput inputMines (\mi -> do
-              let widthInput = read wi :: Int
-                  heightInput = read he :: Int
+              let widthInput = read sideLength :: Int
+                  heightInput = widthInput
                   numberOfMines = read mi :: Int
 
               boardRef <- liftIO $ newIORef (board widthInput heightInput numberOfMines 1 )
@@ -90,18 +88,14 @@ setup view = do
                               showFieldOnGUI view revealedBoard (width rBoard * height rBoard - 1)
                               liftIO $ putStrLn (show revealedBoard)
                               liftIO $ putStrLn "Game over, you won"
-
                           else do
                               liftIO $ putStrLn (show rBoard)
                           return ()
                       return (button)
                   | w <- [0..widthInput - 1]]
                   | h <- [0..heightInput - 1]]]
-
-
-
               return ()
-              )))
+              ))
 
 showFieldOnGUI :: Window -> Board -> Int -> UI Element
 
@@ -121,14 +115,6 @@ showFieldOnGUI view brd index = do
         Nothing -> error ("Something smells...fishy index=" ++ show(index))
         Just el -> element el # set UI.text (show (fields brd !! index))
     showFieldOnGUI view brd (index - 1)
-
--- parseInputField :: Element -> UI Int
--- parseInputField inputField = do
---     uiStr <- get value inputField
---     read uiStr
-
--- TODO parse inputs (width, height, mines)
--- TODO images for buttons ?
 
 consumeInput :: Element -> (String -> UI ()) -> UI ()
 consumeInput element consumer = do
