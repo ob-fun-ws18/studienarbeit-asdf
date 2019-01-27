@@ -10,6 +10,7 @@ module Board (
     getFieldContent,
     isGameLost,
     revealBoard,
+    revealField,
     isGameWon,
     checkedRevealField,
     revealRecursive,
