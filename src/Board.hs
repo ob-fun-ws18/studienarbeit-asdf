@@ -1,3 +1,4 @@
+-- | Module for the Board and all its components.
 module Board (
     Board(..),
     Field(..),
@@ -96,7 +97,14 @@ splitEvery n list = first : (splitEvery n rest)
   where
     (first,rest) = splitAt n list
 
-board :: Int -> Int -> Int -> Int -> Board
+
+-- | Create a new Board.
+board
+    :: Int -- ^ the width
+    -> Int -- ^ the height
+    -> Int -- ^ the number of mines
+    -> Int -- ^ the seed
+    -> Board -- ^ the new Board.
 board width height numberOfMines seed = do
     let minesPos = getRandomMinePositions width height numberOfMines seed
     let positions = [(w, h) | w <- [0..width-1], h <- [0..height-1]]
@@ -165,14 +173,27 @@ isGameWon board = do
          numberOfHiddenFields = foldr (+) 0 isFieldHidden
      numberOfMines board == numberOfHiddenFields
 
-revealBoard :: Board -> Int -> Board
+
+-- | Reveals a field by index like checkedRevealField.
+revealBoard
+    :: Board -- ^ the receiver
+    -> Int -- ^ the index
+    -> Board -- ^ the changed board
 revealBoard board 0 = checkedRevealField board 0 0
 revealBoard board index = do
     let x = mod index (width board)
         y = quot index (height board)
     revealBoard (checkedRevealField board x y) (index - 1)
 
-checkedRevealField :: Board -> Int -> Int -> Board
+-- | Reveals a field and recursively reveals all nil fields and the first non-nil field except mines.
+-- If the selected field is a mine the game state will be changed to lost.
+-- If there are no more fields to reveal but mines the game state will be changed to won.
+-- Else the game state stays at not finished.
+checkedRevealField
+    :: Board -- ^ the receiver
+    -> Int -- ^ x coordinate
+    -> Int -- ^ y coordinate
+    -> Board -- ^ the changed Board
 checkedRevealField board x y = do
     let boardNext = revealRecursive (revealField board x y) [(x, y)]
     if (content $ getFieldFromBoard board x y) == Mine then
@@ -245,7 +266,7 @@ tryReveal b x y = do
 
 -- | Tries to reveal all given coordinates recursivly.
 -- If a field is not a mine and also has the value Nil, then it will also
--- recursivly reveal the neighbouring fields that are not diagonally located to this field.
+-- recursively reveal the neighbouring fields that are not diagonally located to this field.
 revealRecursive
       :: Board -- ^ receiver
       -> [(Int, Int)] -- ^ coordinates to reveal

@@ -1,6 +1,11 @@
+-- | Module for some library functions.
 module Lib where
 
-getRandomNumber :: Int -> Int -> Int
+-- | Returns a random number.
+getRandomNumber
+    :: Int -- ^ the seed
+     -> Int -- ^ the range
+     -> Int -- ^ the random number
 getRandomNumber seed range = ((1103515243 * seed + 123) `mod` (2^16)) `mod` range
 
 -- | Sets the value at the given index.

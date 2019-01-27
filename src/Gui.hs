@@ -1,3 +1,4 @@
+-- | Module for the GUI.
 module Gui(guiMain) where
 import Control.Monad
 import Data.IORef
