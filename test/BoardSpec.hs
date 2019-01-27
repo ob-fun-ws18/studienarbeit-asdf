@@ -6,7 +6,7 @@ import Test.Hspec
 
 spec :: Spec
 spec =
-    context "Baord.hs tests" $ do
+    context "Board.hs tests" $ do
       describe "board" $ do
         it "is a 1x1 board with 1 mine " $ do
           (content $ (fields $ board 1 1 1 1)!!0) `shouldBe` Mine
@@ -38,3 +38,10 @@ spec =
           (isGameWon (board 2 2 1 1)) `shouldBe` False
         it "should be won" $
           (isGameWon (board 1 1 1 1)) `shouldBe` True
+      describe "checkedRevealField" $ do
+        it "should be game lost" $ do
+          let b = board 1 1 1 1
+          (gameState (checkedRevealField b 0 0)) `shouldBe` GameLost
+        it "should be game won" $ do
+          let b = board 1 1 0 1
+          (gameState (checkedRevealField b 0 0)) `shouldBe` GameWon
