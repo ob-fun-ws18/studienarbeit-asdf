@@ -6,10 +6,19 @@ module Board (
     NeighbourCount(..),
     GameState(..),
     board,
-    flagField, getFieldContent, isGameLost, revealBoard, isGameWon, checkedRevealField, revealRecursive, getFieldFromBoard, getCrossNeighbourCellPositions
+    flagField,
+    getFieldContent,
+    isGameLost,
+    revealBoard,
+    isGameWon,
+    checkedRevealField,
+    revealRecursive,
+    getFieldFromBoard,
+    getCrossNeighbourCellPositions
     ) where
 
 import Lib (getRandomMinePositions, getSurroundingPositions, setIndex)
+--import System.Random
 
 data NeighbourCount = Nil | One | Two | Three | Four | Five | Six | Seven | Eight deriving Enum
 
