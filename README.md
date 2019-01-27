@@ -18,3 +18,18 @@ stack build
 stack exec studienarbeit-minesweeper-exe
 ```
 Open http://127.0.0.1:8023 to play minesweeper (refresh to restart the game)
+
+
+
+# Responsibilities 
+
+Aykut Yilmaz
+* Board
+* Lib
+* Tests
+* Doku
+
+Julian Keppeler
+* Board
+* Lib
+* Gui
