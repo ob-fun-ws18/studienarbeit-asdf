@@ -33,3 +33,6 @@ Julian Keppeler
 * Board
 * Lib
 * Gui
+
+
+(Aykut Yilmaz commits über whaph, Julian Keppeler commits über OSMOS, jupiter)
