@@ -18,6 +18,7 @@ module Board (
     ) where
 
 import Lib (getRandomMinePositions, getSurroundingPositions, setIndex)
+--import System.Random
 
 data NeighbourCount = Nil | One | Two | Three | Four | Five | Six | Seven | Eight deriving Enum
 
