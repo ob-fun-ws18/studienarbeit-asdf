@@ -101,7 +101,7 @@ board width height numberOfMines seed = do
     let boardContent = map (\pos -> getFieldContent pos minesPos width height) positions
     Board width height numberOfMines (map (\content -> Field content (Hidden False)) boardContent) GameNotFinished
 
--- | Calcutates the number of mines surrounding the field at the given coordinate and determines its content.
+-- | Calculates the number of mines surrounding the field at the given coordinate and determines its content.
 getFieldContent
     :: (Int, Int) -- ^ the coordinate
     -> [(Int, Int)] -- ^ the coordinates of the mines
